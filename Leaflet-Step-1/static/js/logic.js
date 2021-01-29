@@ -12,11 +12,12 @@ var lightmap = L.tileLayer(
 
 // Initialize all of the LayerGroups we'll be using
 var layers = {
-  COMING_SOON: new L.LayerGroup(),
-  EMPTY: new L.LayerGroup(),
-  LOW: new L.LayerGroup(),
-  NORMAL: new L.LayerGroup(),
-  OUT_OF_ORDER: new L.LayerGroup(),
+  green: new L.LayerGroup(),
+  lightgreen: new L.LayerGroup(),
+  yellow: new L.LayerGroup(),
+  gold: new L.LayerGroup(),
+  orange: new L.LayerGroup(),
+  red: new L.LayerGroup(),
 };
 
 // Create the map with our layers
@@ -24,11 +25,12 @@ var map = L.map("map-id", {
   center: [40.73, -74.0059],
   zoom: 12,
   layers: [
-    layers.COMING_SOON,
-    layers.EMPTY,
-    layers.LOW,
-    layers.NORMAL,
-    layers.OUT_OF_ORDER,
+    layers.green,
+    layers.lightgreen,
+    layers.yellow,
+    layers.gold,
+    layers.orange,
+    layers.red,
   ],
 });
 
@@ -37,11 +39,12 @@ lightmap.addTo(map);
 
 // Create an overlays object to add to the layer control
 var overlays = {
-  "Coming Soon": layers.COMING_SOON,
-  "Empty Stations": layers.EMPTY,
-  "Low Stations": layers.LOW,
-  "Healthy Stations": layers.NORMAL,
-  "Out of Order": layers.OUT_OF_ORDER,
+  "-10-10": layers.green,
+  "10-30": layers.lightgreen,
+  "30-50": layers.yellow,
+  "50-70": layers.gold,
+  "70-90": layers.orange,
+  "90+": layers.red,
 };
 
 // Create a control for our layers, add our overlay layers to it
@@ -62,125 +65,128 @@ info.addTo(map);
 
 // Initialize an object containing icons for each layer group
 var icons = {
-  COMING_SOON: L.ExtraMarkers.icon({
+  green: L.ExtraMarkers.icon({
     icon: "ion-settings",
-    iconColor: "white",
-    markerColor: "yellow",
-    shape: "star",
-  }),
-  EMPTY: L.ExtraMarkers.icon({
-    icon: "ion-android-bicycle",
-    iconColor: "white",
-    markerColor: "red",
+    iconColor: "green",
+    markerColor: "green",
     shape: "circle",
   }),
-  OUT_OF_ORDER: L.ExtraMarkers.icon({
-    icon: "ion-minus-circled",
-    iconColor: "white",
-    markerColor: "blue-dark",
-    shape: "penta",
-  }),
-  LOW: L.ExtraMarkers.icon({
+  lightgreen: L.ExtraMarkers.icon({
     icon: "ion-android-bicycle",
-    iconColor: "white",
+    iconColor: "lightgreen",
+    markerColor: "lightgreen",
+    shape: "circle",
+  }),
+  yellow: L.ExtraMarkers.icon({
+    icon: "ion-minus-circled",
+    iconColor: "yellow",
+    markerColor: "yellow",
+    shape: "circle",
+  }),
+  gold: L.ExtraMarkers.icon({
+    icon: "ion-android-bicycle",
+    iconColor: "gold",
+    markerColor: "gold",
+    shape: "circle",
+  }),
+  orange: L.ExtraMarkers.icon({
+    icon: "ion-android-bicycle",
+    iconColor: "orange",
     markerColor: "orange",
     shape: "circle",
   }),
-  NORMAL: L.ExtraMarkers.icon({
+  red: L.ExtraMarkers.icon({
     icon: "ion-android-bicycle",
-    iconColor: "white",
-    markerColor: "green",
+    iconColor: "red",
+    markerColor: "red",
     shape: "circle",
   }),
 };
 
 // Perform an API call to the Citi Bike Station Information endpoint
-d3.json("https://gbfs.citibikenyc.com/gbfs/en/station_information.json").then(
+d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php").then(
   function (infoRes) {
-    // When the first API call is complete, perform another call to the Citi Bike Station Status endpoint
-    d3.json("https://gbfs.citibikenyc.com/gbfs/en/station_status.json").then(
-      function (statusRes) {
-        var updatedAt = infoRes.last_updated;
-        var stationStatus = statusRes.data.stations;
-        var stationInfo = infoRes.data.stations;
-
+    
         // Create an object to keep of the number of markers in each layer
         var stationCount = {
-          COMING_SOON: 0,
-          EMPTY: 0,
-          LOW: 0,
-          NORMAL: 0,
-          OUT_OF_ORDER: 0,
+          green: 0,
+          lightgreen: 0,
+          yellow: 0,
+          gold: 0,
+          orange: 0,
+          red: 0,
         };
 
         // Initialize a stationStatusCode, which will be used as a key to access the appropriate layers, icons, and station count for layer group
         var stationStatusCode;
 
-        // Loop through the stations (they're the same size and have partially matching data)
-        for (var i = 0; i < stationInfo.length; i++) {
-          // Create a new station object with properties of both station objects
-          var station = Object.assign({}, stationInfo[i], stationStatus[i]);
-          // If a station is listed but not installed, it's coming soon
-          if (!station.is_installed) {
-            stationStatusCode = "COMING_SOON";
-          }
-          // If a station has no bikes available, it's empty
-          else if (!station.num_bikes_available) {
-            stationStatusCode = "EMPTY";
-          }
-          // If a station is installed but isn't renting, it's out of order
-          else if (station.is_installed && !station.is_renting) {
-            stationStatusCode = "OUT_OF_ORDER";
-          }
-          // If a station has less than 5 bikes, it's status is low
-          else if (station.num_bikes_available < 5) {
-            stationStatusCode = "LOW";
-          }
-          // Otherwise the station is normal
-          else {
-            stationStatusCode = "NORMAL";
-          }
+        // // Loop through the stations (they're the same size and have partially matching data)
+        // for (var i = 0; i < stationInfo.length; i++) {
+        //   // Create a new station object with properties of both station objects
+        //   var station = Object.assign({}, stationInfo[i], stationStatus[i]);
+        //   // If a station is listed but not installed, it's coming soon
+        //   if (!station.is_installed) {
+        //     stationStatusCode = "green";
+        //   }
+        //   // If a station has no bikes available, it's empty
+        //   else if (!station.num_bikes_available) {
+        //     stationStatusCode = "lightgreen";
+        //   }
+        //   // If a station is installed but isn't renting, it's out of order
+        //   else if (station.is_installed && !station.is_renting) {
+        //     stationStatusCode = "yellow";
+        //   }
+        //   // If a station has less than 5 bikes, it's status is low
+        //   else if (station.num_bikes_available < 5) {
+        //     stationStatusCode = "gold";
+        //   }
+        //   // If a station has less than 5 bikes, it's status is low
+        //   else if (station.num_bikes_available < 5) {
+        //     stationStatusCode = "orange";
+        //   }
+        //   // Otherwise the station is normal
+        //   else {
+        //     stationStatusCode = "red";
+        //   }
 
-          // Update the station count
-          stationCount[stationStatusCode]++;
-          // Create a new marker with the appropriate icon and coordinates
-          var newMarker = L.marker([station.lat, station.lon], {
-            icon: icons[stationStatusCode],
-          });
+        //   // Update the station count
+        //   stationCount[stationStatusCode]++;
+        //   // Create a new marker with the appropriate icon and coordinates
+        //   var newMarker = L.marker([station.lat, station.lon], {
+        //     icon: icons[stationStatusCode],
+        //   });
 
-          // Add the new marker to the appropriate layer
-          newMarker.addTo(layers[stationStatusCode]);
+        //   // Add the new marker to the appropriate layer
+        //   newMarker.addTo(layers[stationStatusCode]);
 
-          // Bind a popup to the marker that will  display on click. This will be rendered as HTML
-          newMarker.bindPopup(
-            station.name +
-              "<br> Capacity: " +
-              station.capacity +
-              "<br>" +
-              station.num_bikes_available +
-              " Bikes Available"
-          );
-        }
+        //   // Bind a popup to the marker that will  display on click. This will be rendered as HTML
+        //   newMarker.bindPopup(
+        //     station.name +
+        //       "<br> Capacity: " +
+        //       station.capacity +
+        //       "<br>" +
+        //       station.num_bikes_available +
+        //       " Bikes Available"
+        //   );
+        // }
 
-        // Call the updateLegend function, which will... update the legend!
-        updateLegend(updatedAt, stationCount);
-      }
-    );
-  }
-);
+//         // Call the updateLegend function, which will... update the legend!
+//         updateLegend(updatedAt, stationCount);
+//       }
+//     );
+//   }
+// );
 
-// Update the legend's innerHTML with the last updated time and station count
-function updateLegend(time, stationCount) {
-  document.querySelector(".legend").innerHTML = [
-    "<p>Updated: " + moment.unix(time).format("h:mm:ss A") + "</p>",
-    "<p class='out-of-order'>Out of Order Stations: " +
-      stationCount.OUT_OF_ORDER +
-      "</p>",
-    "<p class='coming-soon'>Stations Coming Soon: " +
-      stationCount.COMING_SOON +
-      "</p>",
-    "<p class='empty'>Empty Stations: " + stationCount.EMPTY + "</p>",
-    "<p class='low'>Low Stations: " + stationCount.LOW + "</p>",
-    "<p class='healthy'>Healthy Stations: " + stationCount.NORMAL + "</p>",
-  ].join("");
-}
+// // Update the legend's innerHTML with the last updated time and station count
+// function updateLegend(//earthquake data
+//     ) {
+// //   document.querySelector(".legend").innerHTML = [
+//     // "<p>Updated: " + moment.unix(time).format("h:mm:ss A") + "</p>",
+//     // `<p class='out-of-order'>Out of Order Stations: </p>`,
+//     // "<p class='coming-soon'>Stations Coming Soon: " + stationCount.COMING_SOON +
+//     //   "</p>",
+//     // "<p class='empty'>Empty Stations: " + stationCount.EMPTY + "</p>",
+//     // "<p class='low'>Low Stations: " + stationCount.LOW + "</p>",
+//     // "<p class='healthy'>Healthy Stations: " + stationCount.NORMAL + "</p>",
+// //   ].join("");
+// }
