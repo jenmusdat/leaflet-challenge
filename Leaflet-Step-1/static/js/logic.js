@@ -25,17 +25,17 @@ var link =
 // Function that will determine the color of a neighborhood based on the borough it belongs to
 function chooseColor(mag) {
   switch (true) {
-    case mag > 3:
+    case mag > 4.5:
       return "red";
-    case mag > 2.5:
+    case mag > 3.75:
       return "orange";
-    case mag > 2:
+    case mag > 3.0:
       return "gold";
-    case mag > 1.5:
+    case mag > 2.25:
       return "yellow";
-    case mag > 1:
+    case mag > 1.5:
       return "purple";
-    case mag > 0.5:
+    case mag > 0.75:
       return "blue";
     default:
       return "green";
@@ -67,7 +67,7 @@ d3.json(link).then(function (data) {
         color: "white",
         fillColor: chooseColor(feature.properties.mag),
         fillOpacity: 0.5,
-        radius: feature.properties.mag * 4,
+        radius: feature.properties.mag * 5,
         weight: 1.5,
       };
     },
@@ -77,7 +77,7 @@ d3.json(link).then(function (data) {
 
   legend.onAdd = function (map) {
     var div = L.DomUtil.create("div", "info legend"),
-      grades = [0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0];
+      grades = [0, 0.75, 1.5, 2.25, 3.0, 3.75, 4.5];
     labels = [];
     colors = ["green", "blue", "purple", "yellow", "gold", "orange", "red"];
     // loop through our density intervals and generate a label with a colored square for each interval
