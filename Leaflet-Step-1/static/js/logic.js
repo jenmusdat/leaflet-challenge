@@ -26,19 +26,19 @@ var link =
 function chooseColor(mag) {
   switch (true) {
     case mag > 3:
-      return "yellow";
-    case mag > 2.5:
       return "red";
-    case mag > 2:
+    case mag > 2.5:
       return "orange";
+    case mag > 2:
+      return "gold";
     case mag > 1.5:
-      return "green";
+      return "yellow";
     case mag > 1:
       return "purple";
     case mag > 0.5:
-      return "white";
+      return "blue";
     default:
-      return "black";
+      return "green";
   }
 }
 
@@ -79,7 +79,7 @@ d3.json(link).then(function (data) {
     var div = L.DomUtil.create("div", "info legend"),
       grades = [0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0];
     labels = [];
-    colors = ["black", "white", "purple", "green", "orange", "red", "yellow"];
+    colors = ["green", "blue", "purple", "yellow", "gold", "orange", "red"];
     // loop through our density intervals and generate a label with a colored square for each interval
     for (var i = 0; i < grades.length; i++) {
       div.innerHTML +=
