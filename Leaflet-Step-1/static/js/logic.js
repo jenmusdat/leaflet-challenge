@@ -1,7 +1,7 @@
 /// Creating map object
 var myMap = L.map("mapid", {
   center: [37.09, -95.71],
-  zoom: 2,
+  zoom: 4,
 });
 
 // Adding tile layer
@@ -85,7 +85,7 @@ d3.json(link).then(function (data) {
       div.innerHTML +=
         '<i style="background:' +
         colors[i] +
-        '"></i> ' +
+        '"></i>' +
         grades[i] +
         (grades[i + 1] ? "&ndash;" + grades[i + 1] + "<br>" : "+");
     }
