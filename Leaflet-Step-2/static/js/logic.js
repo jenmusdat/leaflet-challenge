@@ -5,7 +5,7 @@ var myMap = L.map("mapid", {
 });
 
 // Adding tile layer
-L.tileLayer(
+var streetMap = L.tileLayer(
   "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}",
   {
     attribution:
@@ -19,7 +19,7 @@ L.tileLayer(
 ).addTo(myMap);
 
 // Use this link to get the geojson data.
-var link =
+var earthquakes =
   "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/1.0_week.geojson";
 
 // Function that will determine the color of a neighborhood based on the borough it belongs to
@@ -41,10 +41,10 @@ function chooseColor(values) {
 }
 
 // Grabbing our GeoJSON data..
-d3.json(link).then(function (data) {
+d3.json(earthquakes).then(function (earthquakes) {
   // Creating a geoJSON layer with the retrieved data
-  console.log(data);
-  L.geoJson(data, {
+  console.log(earthquakes);
+  L.geoJson(earthquakes, {
     pointToLayer: function (feature, latlng) {
       return L.circleMarker(latlng);
     },
@@ -70,7 +70,54 @@ d3.json(link).then(function (data) {
       };
     },
   }).addTo(myMap);
+  
+  var tectonicPlates = new L.layerGroup();
+  var earthquakes = new L.layerGroup(earthquakes);
 
+  // Define variables for our tile layers
+  var satelliteMap = L.tileLayer(
+    "https://api.mapbox.com/styles/v1/mapbox/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}",
+    {
+      attribution:
+        'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+      maxZoom: 18,
+      id: "mapbox.satellite",
+      accessToken: API_KEY,
+    }
+  );
+  // Retrieve platesURL (Tectonic Plates GeoJSON Data) with D3
+  d3.json("data/tectonicPlates.json").then((tectonicPlates) => {
+    // Create a GeoJSON Layer the plateData
+    L.geoJson(tectonicPlates, {
+      color: "orange",
+      weight: 2,
+      // Add plateData to tectonicPlates LayerGroups
+    }).addTo(tectonicPlates);
+    // Add tectonicPlates Layer to the Map
+    tectonicPlates.addTo(myMap);
+  });
+  // Only one base layer can be shown at a time
+  var baseMaps = {
+    Street: streetMap,
+    Satellite: satelliteMap,
+  };
+
+  // Overlays that may be toggled on or off
+  var overlayMaps = {
+    Tectonic: tectonicPlates,
+    Earthquakes: earthquakeLayer,
+  };
+
+  // Create map object and set default layers
+  var myMap = L.map("map", {
+    center: [46.2276, 2.2137],
+    zoom: 6,
+    layers: [streetMap, earthquakeLayer],
+  });
+
+  // Pass our map layers into our layer control
+  // Add the layer control to the map
+  L.control.layers(baseMaps, overlayMaps).addTo(myMap);
   var legend = L.control({ position: "bottomright" });
 
   legend.onAdd = function (map) {
