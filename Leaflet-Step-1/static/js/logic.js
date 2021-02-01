@@ -23,17 +23,17 @@ var link =
   "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/1.0_week.geojson";
 
 // Function that will determine the color of a neighborhood based on the borough it belongs to
-function chooseColor(mag) {
+function chooseColor(values) {
   switch (true) {
-    case mag > 5:
+    case values > 90:
       return "red";
-    case mag > 4:
+    case values > 70:
       return "orange";
-    case mag > 3:
+    case values > 50:
       return "gold";
-    case mag > 2:
+    case values > 30:
       return "yellow";
-    case mag > 1:
+    case values > 10:
       return "purple";
     default:
       return "green";
@@ -62,11 +62,11 @@ d3.json(link).then(function (data) {
 
     style: function (feature) {
       return {
-        color: "white",
-        fillColor: chooseColor(feature.properties.mag),
+        color: "black",
+        fillColor: chooseColor(feature.geometry.coordinates[2]),
         fillOpacity: 0.5,
         radius: feature.properties.mag * 5,
-        weight: 1.5,
+        weight: 1,
       };
     },
   }).addTo(myMap);
@@ -75,9 +75,10 @@ d3.json(link).then(function (data) {
 
   legend.onAdd = function (map) {
     var div = L.DomUtil.create("div", "info legend"),
-      grades = [0, 1.0, 2.0, 3.0, 4.0, 5.0];
+      grades = [-10, 10, 30, 50, 70, 90];
     labels = [];
     colors = ["green", "purple", "yellow", "gold", "orange", "red"];
+    div.innerHTML += "<b>Legend: <br>Earthquake <br>Depth</b><br>";
     // loop through our density intervals and generate a label with a colored square for each interval
     for (var i = 0; i < grades.length; i++) {
       div.innerHTML +=
