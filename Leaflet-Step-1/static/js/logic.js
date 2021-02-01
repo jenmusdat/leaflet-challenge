@@ -78,7 +78,7 @@ d3.json(link).then(function (data) {
       grades = [-10, 10, 30, 50, 70, 90];
     labels = [];
     colors = ["green", "purple", "yellow", "gold", "orange", "red"];
-    div.innerHTML += "<b>Legend: <br>Earthquake <br>Depth</b><br>";
+    div.innerHTML += "<b>LEGEND: <br>Earthquake <br>Depth</b><br>";
     // loop through our density intervals and generate a label with a colored square for each interval
     for (var i = 0; i < grades.length; i++) {
       div.innerHTML +=
