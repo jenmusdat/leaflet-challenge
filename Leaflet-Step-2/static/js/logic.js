@@ -3,6 +3,8 @@ var myMap = L.map("mapid", {
   center: [37.09, -95.71],
   zoom: 4,
 });
+var tectonicPlates = new L.layerGroup(tectonicPlates);
+var earthquakes = new L.layerGroup(earthquakes);
 
 // Adding tile layer
 var streetMap = L.tileLayer(
@@ -16,10 +18,22 @@ var streetMap = L.tileLayer(
     id: "mapbox/streets-v11",
     accessToken: API_KEY,
   }
+);
+
+// Define variables for our tile layers
+var satelliteMap = L.tileLayer(
+  "https://api.mapbox.com/styles/v1/mapbox/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}",
+  {
+    attribution:
+      'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+    maxZoom: 18,
+    id: "mapbox.satellite",
+    accessToken: API_KEY,
+  }
 ).addTo(myMap);
 
 // Use this link to get the geojson data.
-var earthquakes =
+var link =
   "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/1.0_week.geojson";
 
 // Function that will determine the color of a neighborhood based on the borough it belongs to
@@ -41,10 +55,10 @@ function chooseColor(values) {
 }
 
 // Grabbing our GeoJSON data..
-d3.json(earthquakes).then(function (earthquakes) {
+d3.json(link).then(function (data) {
   // Creating a geoJSON layer with the retrieved data
-  console.log(earthquakes);
-  L.geoJson(earthquakes, {
+  console.log(data);
+  L.geoJson(data, {
     pointToLayer: function (feature, latlng) {
       return L.circleMarker(latlng);
     },
@@ -70,23 +84,10 @@ d3.json(earthquakes).then(function (earthquakes) {
       };
     },
   }).addTo(myMap);
-  
-  var tectonicPlates = new L.layerGroup();
-  var earthquakes = new L.layerGroup(earthquakes);
 
-  // Define variables for our tile layers
-  var satelliteMap = L.tileLayer(
-    "https://api.mapbox.com/styles/v1/mapbox/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}",
-    {
-      attribution:
-        'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-      maxZoom: 18,
-      id: "mapbox.satellite",
-      accessToken: API_KEY,
-    }
-  );
   // Retrieve platesURL (Tectonic Plates GeoJSON Data) with D3
   d3.json("data/tectonicPlates.json").then((tectonicPlates) => {
+    console.log(tectonicPlates);
     // Create a GeoJSON Layer the plateData
     L.geoJson(tectonicPlates, {
       color: "orange",
@@ -96,6 +97,7 @@ d3.json(earthquakes).then(function (earthquakes) {
     // Add tectonicPlates Layer to the Map
     tectonicPlates.addTo(myMap);
   });
+
   // Only one base layer can be shown at a time
   var baseMaps = {
     Street: streetMap,
@@ -105,14 +107,14 @@ d3.json(earthquakes).then(function (earthquakes) {
   // Overlays that may be toggled on or off
   var overlayMaps = {
     Tectonic: tectonicPlates,
-    Earthquakes: earthquakeLayer,
+    Earthquakes: earthquakes,
   };
 
   // Create map object and set default layers
-  var myMap = L.map("map", {
+  var myMap = L.map("mapid", {
     center: [46.2276, 2.2137],
     zoom: 6,
-    layers: [streetMap, earthquakeLayer],
+    layers: [streetMap, earthquakes],
   });
 
   // Pass our map layers into our layer control
