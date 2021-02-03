@@ -106,8 +106,8 @@ d3.json(link).then(function (data) {
     /// Creating map object and set defaulut layers
     var myMap = L.map("mapid", {
       center: [37.09, -95.71],
-      zoom: 4,
-      layers: [light, earthquakes],
+      zoom: 3,
+      layers: [dark, earthquakes],
     });
     var legend = L.control({ position: "bottomright" });
 
