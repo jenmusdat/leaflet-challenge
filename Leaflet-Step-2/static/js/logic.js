@@ -1,13 +1,11 @@
-/// Creating map object
-var myMap = L.map("mapid", {
-  center: [37.09, -95.71],
-  zoom: 4,
-});
-var tectonicPlates = new L.layerGroup(tectonicPlates);
-var earthquakes = new L.layerGroup(earthquakes);
+// /// Creating map object
+// var myMap = L.map("mapid", {
+//   center: [37.09, -95.71],
+//   zoom: 4,
+// });
 
 // Adding tile layer
-var streetMap = L.tileLayer(
+var streetMaps = L.tileLayer(
   "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}",
   {
     attribution:
@@ -21,21 +19,68 @@ var streetMap = L.tileLayer(
 );
 
 // Define variables for our tile layers
-var satelliteMap = L.tileLayer(
+var light = L.tileLayer(
   "https://api.mapbox.com/styles/v1/mapbox/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}",
   {
     attribution:
       'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
     maxZoom: 18,
-    id: "mapbox.satellite",
+    id: "light-v10",
     accessToken: API_KEY,
   }
-).addTo(myMap);
+);
+
+var dark = L.tileLayer(
+  "https://api.mapbox.com/styles/v1/mapbox/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}",
+  {
+    attribution:
+      'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+    maxZoom: 18,
+    id: "dark-v10",
+    accessToken: API_KEY,
+  }
+);
+
+// Only one base layer can be shown at a time
+var baseMaps = {
+  Street: streetMaps,
+  Light: light,
+  Dark: dark,
+};
+
+// An array which will be used to store created cityMarkers
+var link = new L.layerGroup();
+var tectonicPlates = new L.layerGroup();
+// Overlays that may be toggled on or off
+var overlayMaps = {
+  Earthquakes: link,
+  Tectonic: tectonicPlates,
+};
+
+/// Creating map object and set defaulut layers
+var myMap = L.map("mapid", {
+  center: [37.09, -95.71],
+  zoom: 4,
+  layers: [light, streetMaps],
+});
+L.control.layers(baseMaps, overlayMaps).addTo(myMap);
 
 // Use this link to get the geojson data.
 var link =
   "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/1.0_week.geojson";
+// var tectonicPlates = "data/tectonicPlates.json";
 
+// // Grabbing our GeoJSON data..
+// d3.json(tectonicPlates).then(function (data) {
+//   // Creating a geoJSON layer with the retrieved data
+//   console.log(data);
+//   L.geoJson(data, {
+//     pointToLayer: function (latlng) {
+//       return L.tectonicPlates(latlng);
+//     },
+//   });
+//   tectonicPlates.addto(myMap);
+// }),
 // Function that will determine the color of a neighborhood based on the borough it belongs to
 function chooseColor(values) {
   switch (true) {
@@ -85,41 +130,6 @@ d3.json(link).then(function (data) {
     },
   }).addTo(myMap);
 
-  // Retrieve platesURL (Tectonic Plates GeoJSON Data) with D3
-  d3.json("data/tectonicPlates.json").then((tectonicPlates) => {
-    console.log(tectonicPlates);
-    // Create a GeoJSON Layer the plateData
-    L.geoJson(tectonicPlates, {
-      color: "orange",
-      weight: 2,
-      // Add plateData to tectonicPlates LayerGroups
-    }).addTo(tectonicPlates);
-    // Add tectonicPlates Layer to the Map
-    tectonicPlates.addTo(myMap);
-  });
-
-  // Only one base layer can be shown at a time
-  var baseMaps = {
-    Street: streetMap,
-    Satellite: satelliteMap,
-  };
-
-  // Overlays that may be toggled on or off
-  var overlayMaps = {
-    Tectonic: tectonicPlates,
-    Earthquakes: earthquakes,
-  };
-
-  // Create map object and set default layers
-  var myMap = L.map("mapid", {
-    center: [46.2276, 2.2137],
-    zoom: 6,
-    layers: [streetMap, earthquakes],
-  });
-
-  // Pass our map layers into our layer control
-  // Add the layer control to the map
-  L.control.layers(baseMaps, overlayMaps).addTo(myMap);
   var legend = L.control({ position: "bottomright" });
 
   legend.onAdd = function (map) {
