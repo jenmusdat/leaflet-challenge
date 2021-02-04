@@ -97,7 +97,11 @@ d3.json(link).then(function (data) {
       },
     });
     console.log(pdata);
-    var plates = L.geoJson(pdata.features);
+    var plates = L.geoJson(pdata.features, {
+      style: {
+        color: "red",
+      },
+    });
     // Overlays that may be toggled on or off
     var overlayMaps = {
       Earthquakes: earthquakes,
